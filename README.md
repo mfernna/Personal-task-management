@@ -1,73 +1,106 @@
-# React + TypeScript + Vite
+# Personal Task Management
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Simple task manager (React + Vite frontend, Laravel backend).
 
-Currently, two official plugins are available:
+This README contains concise instructions to run both frontend and backend locally, environment examples, and quick troubleshooting tips.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## Quick Links
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Frontend: `./src`
+- Backend: `./Backend`
 
-## Expanding the ESLint configuration
+## Prerequisites
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js (>=16) and npm or pnpm
+- PHP (>=8.0) and Composer
+- (Optional) a database: SQLite, MySQL, or Postgres
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Backend — Run locally
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+1. Open a terminal and go to the backend folder:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```powershell
+cd Backend
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. Install PHP dependencies and prepare env file:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```powershell
+composer install
+cp .env.example .env
+php artisan key:generate
 ```
+
+3. Configure DB in `.env` (use SQLite for simplest local setup):
+
+```ini
+DB_CONNECTION=sqlite
+DB_DATABASE=database/database.sqlite
+```
+
+4. Run migrations (if present) and start server:
+
+```powershell
+php artisan migrate
+php artisan serve --port=8000
+```
+
+Backend dev URL: `http://localhost:8000`
+
+## Frontend — Run locally
+
+1. From project root:
+
+```powershell
+npm install
+cp .env.example .env
+# Edit .env and set VITE_BACKEND_URL if needed (default shown below)
+npm run dev
+```
+
+Frontend dev URL: `http://localhost:5173`
+
+## Environment examples
+
+Root `.env.example` (frontend):
+
+```env
+VITE_BACKEND_URL=http://localhost:8000/api
+```
+
+`Backend/.env.example` (minimal):
+
+```ini
+APP_NAME=PersonalTask
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://localhost:8000
+
+LOG_CHANNEL=stack
+
+# Database (simple local example)
+DB_CONNECTION=sqlite
+DB_DATABASE=database/database.sqlite
+
+# CORS
+CORS_ALLOWED_ORIGINS=http://localhost:5173
+CORS_ALLOW_CREDENTIALS=false
+```
+
+After editing `.env`, reload Laravel config cache:
+
+```powershell
+php artisan config:clear
+php artisan route:clear
+php artisan cache:clear
+```
+
+## CORS troubleshooting (common)
+
+- If you see errors like "No 'Access-Control-Allow-Origin' header" or preflight failures:
+  - Check Network tab in DevTools for the OPTIONS request's response headers.
+  - Ensure the preflight (OPTIONS) response includes `Access-Control-Allow-Origin` and `Access-Control-Allow-Methods`.
+  - For development the project uses a simple CORS handler; in production prefer an allowlist and `Access-Control-Allow-Credentials` only when needed.

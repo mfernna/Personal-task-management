@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class Cors
+{
+    public function handle(Request $request, Closure $next): Response
+    {
+        // 1. CRITICAL: Only handle the OPTIONS (Preflight) request.
+        if ($request->isMethod('OPTIONS')) {
+            return response('', 204) // Return 204 No Content for success
+                ->header('Access-Control-Allow-Origin', '*')
+                ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+                ->header('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With, Authorization');
+        }
+
+        // 2. FOR ALL OTHER METHODS (GET, DELETE, POST, PUT), just continue the request.
+        // Ensure that the actual response also contains the CORS headers.
+        // Browsers require these headers on both the preflight (OPTIONS)
+        // response and the actual response for non-simple requests.
+        $response = $next($request);
+
+        // Add standard CORS headers to the response.
+        $response->headers->set('Access-Control-Allow-Origin', '*');
+        $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With, Authorization');
+
+        return $response;
+    }
+}
