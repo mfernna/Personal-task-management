@@ -13,19 +13,23 @@ This README contains concise instructions to run both frontend and backend local
 
 ## Prerequisites
 
-- Node.js (>=16) and npm or pnpm
+- Node.js (>=16) and a package manager (npm, yarn, or pnpm)
 - PHP (>=8.0) and Composer
-- (Optional) a database: SQLite, MySQL, or Postgres
+- SQLite (recommended for local development) or other DB (MySQL/Postgres)
+
+Notes:
+
+- On Windows `cp` works in PowerShell as an alias for `Copy-Item`, but the README uses cross-platform commands where possible.
 
 ## Backend — Run locally
 
-1. Open a terminal and go to the backend folder:
+1. Open a terminal and change to the backend folder:
 
 ```powershell
 cd Backend
 ```
 
-2. Install PHP dependencies and prepare env file:
+2. Install PHP dependencies and create the `.env` file:
 
 ```powershell
 composer install
@@ -40,18 +44,24 @@ DB_CONNECTION=sqlite
 DB_DATABASE=database/database.sqlite
 ```
 
-4. Run migrations (if present) and start server:
+4. Run migrations and start the dev server:
 
 ```powershell
 php artisan migrate
 php artisan serve --port=8000
 ```
 
+Optional: seed the DB
+
+```powershell
+php artisan db:seed
+```
+
 Backend dev URL: `http://localhost:8000`
 
 ## Frontend — Run locally
 
-1. From project root:
+From the project root (where `package.json` lives):
 
 ```powershell
 npm install
@@ -98,9 +108,28 @@ php artisan route:clear
 php artisan cache:clear
 ```
 
-## CORS troubleshooting (common)
+## Troubleshooting
 
-- If you see errors like "No 'Access-Control-Allow-Origin' header" or preflight failures:
-  - Check Network tab in DevTools for the OPTIONS request's response headers.
-  - Ensure the preflight (OPTIONS) response includes `Access-Control-Allow-Origin` and `Access-Control-Allow-Methods`.
-  - For development the project uses a simple CORS handler; in production prefer an allowlist and `Access-Control-Allow-Credentials` only when needed.
+- CORS errors (e.g. `No 'Access-Control-Allow-Origin' header`):
+
+  - Inspect the OPTIONS preflight in DevTools Network tab.
+  - Confirm the preflight response includes `Access-Control-Allow-Origin` and `Access-Control-Allow-Methods`.
+  - For development we include a permissive CORS handler; for production use an allowlist and enable `Access-Control-Allow-Credentials` only when needed.
+
+- API 500 on create:
+
+  - Check `Backend/storage/logs/laravel.log` for the full stack trace.
+  - Ensure incoming POST body matches controller validation (e.g. `title` required).
+
+- Database errors:
+  - Verify `.env` DB settings and that `database/database.sqlite` exists (if using SQLite).
+
+If you want, I can also:
+
+- Add a `.env.example` at the repo root and in `Backend/` (I can create them and commit).
+- Harden the CORS setup for production and replace the development fallback.
+- Add a short CONTRIBUTING or DEPLOY.md with commands for reviewers.
+
+---
+
+If you want me to commit these README changes and add `.env.example` files, say "Yes — commit and push" and I will create the files and push a branch or update `main` as you prefer.
