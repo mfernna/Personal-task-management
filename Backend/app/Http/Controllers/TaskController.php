@@ -7,7 +7,6 @@ use App\Models\Task;
 
 class TaskController extends Controller
 {
-    // Utility to apply CORS headers
     private function addCorsHeaders($response)
     {
         return $response->header('Access-Control-Allow-Origin', '*')
@@ -32,7 +31,7 @@ class TaskController extends Controller
         }
 
         $response = response()->json($tasks->get());
-        return $this->addCorsHeaders($response); // Headers applied to GET list
+        return $this->addCorsHeaders($response);
     }
 
     public function store(Request $request)
@@ -46,28 +45,27 @@ class TaskController extends Controller
         $task = Task::create($validated);
 
         $response = response()->json($task, 201);
-        return $this->addCorsHeaders($response); // Headers applied to POST
+        return $this->addCorsHeaders($response); 
     }
 
     
     public function show(Task $task)
     {
         $response = response()->json($task);
-        return $this->addCorsHeaders($response); // Headers applied to GET single
+        return $this->addCorsHeaders($response);
     }
 
  
     public function update(Request $request, Task $task)
     {
         $validated = $request->validate([
-            // NOTE: Assuming your frontend sends 'title' if you search by 'title' in index.
             'title' => 'sometimes|string|max:255', 
             'description' => 'sometimes|string',
             'completed' => 'sometimes|boolean',
         ]);
         $task->update($validated);
         $response = response()->json($task, 200);
-        return $this->addCorsHeaders($response); // Headers applied to PUT
+        return $this->addCorsHeaders($response);
     }
 
     
@@ -77,6 +75,6 @@ class TaskController extends Controller
         $task->delete();
         
         $response = response()->json(null, 204);
-        return $this->addCorsHeaders($response); // Headers applied to DELETE
+        return $this->addCorsHeaders($response);
     }
 }

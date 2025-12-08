@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteTask, updateTaskStatus, type TasksBase } from "../api/task";
 import check from "../assets/check.svg";
 import trash from "../assets/trash.svg";
@@ -14,20 +14,28 @@ const status = {
 } as const;
 
 export const TaskCard = ({ task }: TaskCardProps) => {
+  const queryClient = useQueryClient();
+
   const { mutate: deleteCurrentTask } = useMutation({
     mutationFn: deleteTask,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.done("Task deleted successfully");
     },
-    onError: () => {},
+    onError: (e) => {
+      console.log(e);
+    },
   });
 
   const { mutate: updateTask } = useMutation({
     mutationFn: updateTaskStatus,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.done("Task updated successfully");
     },
-    onError: () => {},
+    onError: (e) => {
+      console.log(e);
+    },
   });
 
   return (
@@ -44,7 +52,7 @@ export const TaskCard = ({ task }: TaskCardProps) => {
             <p className="rounded-xl p-2 bg-red-400">{status.INCOMPLETED}</p>
           )}
         </span>
-        <section className="[&>button]:cursor-pointer [&>button]:hover:scale-105 flex justify-between w-40">
+        <section className="[&_img]:size-7 [&>button]:cursor-pointer [&>button]:hover:scale-105 flex justify-between w-40">
           {task.completed ? (
             <></>
           ) : (
@@ -53,12 +61,12 @@ export const TaskCard = ({ task }: TaskCardProps) => {
                 updateTask(task.id);
               }}
             >
-              <img src={check} alt="Check icon" className="size-7" />
+              <img src={check} alt="Check icon" />
             </button>
           )}
 
           <button onClick={() => deleteCurrentTask(task.id)}>
-            <img src={trash} alt="trash icon" className="size-7" />
+            <img src={trash} alt="trash icon" />
           </button>
         </section>
       </section>

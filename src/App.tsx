@@ -9,8 +9,8 @@ const queryClient = new QueryClient();
 export const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="bg-orange-200 h-screen">
-        <section className="w-[60%] h-full m-auto bg-orange-200">
+      <div className="bg-orange-200 h-screen relative">
+        <section className="w-[60%] m-auto bg-orange-200">
           <Navbar />
           <TaskList />
         </section>
