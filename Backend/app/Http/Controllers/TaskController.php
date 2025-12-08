@@ -37,7 +37,14 @@ class TaskController extends Controller
 
     public function store(Request $request)
     {
-        $task = Task::create($request->validate());
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'sometimes|string|nullable',
+            'completed' => 'sometimes|boolean',
+        ]);
+
+        $task = Task::create($validated);
+
         $response = response()->json($task, 201);
         return $this->addCorsHeaders($response); // Headers applied to POST
     }
